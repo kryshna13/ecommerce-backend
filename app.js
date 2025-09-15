@@ -7,9 +7,31 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const productRouter = require('./routes/product');
+const categoryRouter = require('./routes/category')
+const orderRouter  = require('./routes/orders')
+require('dotenv').config();
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'ecommerce',
+      version: '1.0.0',
+      description: 'API documentation',
+    },
+    servers: [{ url: 'http://localhost:3000' }],
+  },
+  apis: ['./routes/*.js'], // Path to your route files
+};
+
 
 var app = express();
 
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -36,6 +58,9 @@ app.use(
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/products', productRouter)
+app.use('/category', categoryRouter)
+app.use('/orders', orderRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -44,7 +69,7 @@ app.use(function(req, res, next) {
 
 // mongodb connection
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI || '')
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('Mongo error', err));
 

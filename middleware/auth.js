@@ -24,3 +24,10 @@ exports.requireRole = (...roles) => (req, res, next) => {
   }
   next();
 };
+
+exports.authorizeAdmin = (req, res, next)=> {
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Access denied. Admins only.' });
+}
